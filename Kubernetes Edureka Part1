@@ -1,0 +1,176 @@
+What is Kubernetes?
+Kubernetes is an open-source, portable platform for automating deployment, scaling, and management of containerized workloads and applications. It groups containers that make up an application into logical units for easy management and discovery.
+
+Kubernetes - Pods:
+ ▪ Basic building blocks of Kubernetes.
+ ▪ To reduce coupling as much as possible, single container pods are used.
+ ▪ Multi-container pods can be deployed for cohesive processes.
+ ▪ Multi-container pods are more efficient since they share the same user-space.
+
+Kubernetes - Controllers:
+ ▪ Controllers are control loops that monitor the state of the cluster through the API Server.
+ ▪ Maintains and brings the cluster to the desired state.
+ ▪ All controllers are separate but are compiled into a single binary running as a single process.
+ ▪ Example: Deployment, ReplicaSet, NodeController.
+
+Kubernetes - Services:
+ ▪ Services add a layer of abstraction over the pods.
+ ▪ The abstraction defines a policy through which the pods are accessed.
+ ▪ Services load balance the requests across a set of pods.
+
+Kubernetes - Volumes:
+ ▪ Containers are ephemeral, and once the container crashes, all its data is lost.
+ ▪ Volumes provide a definite storage structure which can be attached to a pod.
+ ▪ Lifecycle of volume can be bound to the pod.
+ ▪ Volumes help restore stopped/unavailable containers to their previous state.
+
+Kubernetes - ConfigMaps and Secrets:
+ ▪ ConfigMaps and Secrets allow users to configure applications externally.
+ ▪ Allows passing sensitive information without hardcoding it inside the container spec
+ ▪ ConfigMaps are used for non-confidential data
+ ▪ Secrets are used for confidential data
+
+Kubernetes - Deployments:
+ ▪ Deployment transitions current environment to the desired state in a controlled manner.
+ ▪ Deploys a replication controller or a replica set which further deploy the pods.
+ ▪ Used to rollout updates to already deployed applications.
+ ▪ Rollbacks are possible in case of faulty rollout.
+
+Kubernetes - StatefulSet:
+ ▪ StatefulSet is ReplicaSet equivalent for stateful applications.
+ ▪ Maintains uniqueness of each pod across different deployments and scaling operations.
+ ▪ Requires a headless service to provide network identity to the pods.
+
+
+Kubectl:
+ ▪ Kubectl is the command line tool which manages the Kubernetes cluster.
+ ▪ It takes configurations from $HOME/.kube directory.
+ ▪ Interacts with the api-server to manage the cluster.
+
+Note: kubectl cannot be used to bootstrap a Kubernetes cluster.
+
+Kubectl Commands: 
+Create:  $kubectl create –f fileName.
+ ▪ Creates Kubernetes resources using a file or standard input.
+ ▪ The file format could be YAML or JSON.
+ ▪ Resources such as deployments, services, clusterRoles, and jobs can be created using the create command.
+
+Get:  $kubectl get resourceType.
+ ▪ Displays the resources and their current state
+ ▪ Results are displayed in a tabular format and can be filtered according to the user’s requirement.
+
+Run:  $kubectl run name --image=imageName.
+ ▪ Run directly deploys a particular image in the format user wants.
+ ▪ Generally, a deployment is created with a replication controller unless specified otherwise.
+
+Expose:  $kubectl expose resourceType resourceName.
+ ▪ Used to expose Kubernetes resources as a service.
+ ▪ The selector for the service is the same as the selector for the resource.
+ ▪ To expose deployments or replicaSets, the equality based selector must be used.
+
+Delete:  $kubectl delete –f fileName.
+ ▪ Deletes selected resources on the cluster.
+ ▪ Resources can be deleted using filename, stdin, resourceName, and labels & selectors.
+ ▪ Graceful deletion of pods is possible. This allows the current process to end before deletion.
+
+Apply:  $kubectl apply –f fileName.
+ ▪ Changes the configuration of an already deployed resource.
+ ▪ If the resource does not exist, a new resource is created.
+
+Edit:  $kubectl edit [–f filename]/[ResourceName]
+ ▪ Edits the specification YAML of a deployed resource.
+ ▪ Allows direct modification to any API resource which can be retrieved using the command line tools.
+
+Other Useful KubectlCommands:
+ label: Creates/updates the labels on a resource
+ scale: Scales the current size of the pod-controlling resources to the desired size
+ describe: Gives a detailed description about the resource
+ exec: Used to enter and execute commands inside of the container shell
+ logs: Displays the logs for a pod or a resource
+ cluster-info: Displays the current state of the cluster
+ cp: Copies files/directories to and from containers
+ explain: Describes the API resources 
+ set: Used to make changes to deployed application resources
+
+
+What is a Pod?
+ ▪ Pod is the most basic unit of deployment in Kubernetes hierarchy.
+ ▪ It hosts container(s) inside it and is responsible for ensuring they’re healthy and functioning as expected.
+
+Advantages of Pods:
+Pods can scale, configure, and apply patches to containers effortlessly.
+Easier to orchestrate containers deployed at a large scale.
+Pods are self-healing and do not require manual intervention.
+Resource sharing amongst containers is secure and easy.
+
+ReplicaSet:
+ Maintains a definite number of pods on the cluster at any given time.
+ Uses a set-based selector to identify and acquire pods.
+ PodSpec template and the number of pods are defined in the ReplicaSet YAML.
+ Pods have a metadata.ownerReference field through which ReplicaSet takes ownership of the pod.
+ ReplicaSet assumes ownership of pods without owners.
+
+ReplicationController:
+ Ensures a specific number of pods are always running.
+ Pods can be scaled up and down depending upon the current requirement.
+ Uses an equality-based selector to acquire pods.
+ Acts as a process supervisor, supervising pods across nodes on the cluster.
+ Maintains the number of pods in the case of a node-failure.
+
+Deployments:
+ Deployments are controllers which provide declarative updates to pods and brings the current state of the system to the desired state.
+ ▪ Deploy a ReplicaSet which controls the pods.
+ ▪ Current state of the pods can be changed using deployments.
+ ▪ Update are rolled out in a gradual manner.
+ ▪ In-case of a faulty update, rollback to a previous version is possible.
+
+DaemonSet: DaemonSet ensures that an instance of a pod is always running on all or selected node(s) in the cluster.
+ ▪ Used to run daemon processes for cluster applications/nodes
+ ▪ Does not require scheduler intervention to schedule pods
+ ▪ A common use-case is to use it as a logging/ monitoring agent
+ ▪ When deleted, it terminates all the pods it has scheduled
+
+Rolling Update:
+ ▪ Deployments changed how updates for applications are handled in Kubernetes.
+ ▪ The declarative nature of deployments makes it easy to rollout updates.
+ ▪ This reduces the application down-time significantly.
+
+ ▪ Deployments manage rolling updates by creating a new ReplicaSet with the updated content
+ ▪ The new ReplicaSet scales up while the old ReplicaSet scales down the pods
+ ▪ The number of pods is maintained and there is no down-time
+ ▪ The old ReplicaSet remains in the cluster and is not deleted
+
+Note: The rolling-update command is applicable only to the replication controller.
+
+ ▪ The rollout --history command is used to track changes/updates.
+ ▪ The cause of the change can be recorded.
+ ▪ A simple way to rollout an update is to edit the deployment using the edit command.
+
+Rollbacks:
+ ▪ After a rollout, the old ReplicaSet remains in the cluster.
+ ▪ If a rollback is required, the old ReplicaSet is scaled up and the current ReplicaSet is scaled down.
+ ▪ The required version can be retrieved from revision history.
+
+Kubernetes: Scaling:
+Pods can be scaled using direct CLI commands or by editing controller specification
+
+Kubernetes: Manual Scaling: 
+ ▪ For lighter workload demands, admins tend to scale their application manually.
+ ▪ The admin increases/decreases the number of pods according to the requirement session.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
